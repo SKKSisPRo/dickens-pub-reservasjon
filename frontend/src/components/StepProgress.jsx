@@ -8,24 +8,11 @@ const POINTS = [
   { x: 90, y: DOT_Y },
 ];
 
-// The line itself still bulges up/down between dots (wavy connector),
-// even though the dots it connects all sit at the same y.
-const WAVE_AMPLITUDE = 14;
-
-function buildWavePath(points, amplitude) {
-  let d = `M ${points[0].x} ${points[0].y}`;
-  for (let i = 1; i < points.length; i++) {
-    const prev = points[i - 1];
-    const curr = points[i];
-    const midX = (prev.x + curr.x) / 2;
-    const sign = i % 2 === 0 ? 1 : -1;
-    const bulgeY = prev.y + sign * amplitude;
-    d += ` C ${midX} ${bulgeY}, ${midX} ${bulgeY}, ${curr.x} ${curr.y}`;
-  }
-  return d;
+function buildLinePath(points) {
+  return points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
 }
 
-const WAVE_PATH = buildWavePath(POINTS, WAVE_AMPLITUDE);
+const LINE_PATH = buildLinePath(POINTS);
 
 export default function StepProgress({ currentStep, steps, onStepClick }) {
   return (
@@ -36,7 +23,7 @@ export default function StepProgress({ currentStep, steps, onStepClick }) {
         preserveAspectRatio="none"
       >
         <path
-          d={WAVE_PATH}
+          d={LINE_PATH}
           fill="none"
           stroke="#D1D5DB"
           strokeWidth="1.5"
