@@ -8,16 +8,17 @@ export default {
     extend: {
       colors: {
         dickens: {
-          green: '#1A3A32',
-          gold: '#8B864E',
-          cream: '#F5F5F5',
-          brown: '#5D4037',
-          red: '#632626',
+          green: '#1E4538',
+          lightgreen: '#2A5C49',
+          gold: '#B8862C',
+          cream: '#F7F1E4',
+          brown: '#5A4433',
+          red: '#7A2E2E',
         }
       },
       fontFamily: {
-        gothic: ['UnifrakturMaguntia', 'cursive'],
-        sans: ['Inter', 'sans-serif'],
+        gothic: ['Libre Baskerville', 'Georgia', 'serif'],
+        sans: ['Work Sans', 'Arial', 'sans-serif'],
       }
     },
   },

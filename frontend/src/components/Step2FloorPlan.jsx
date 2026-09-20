@@ -23,20 +23,7 @@ export default function Step2FloorPlan({ bookingDetails, onBack, onSuccess }) {
   const [tables, setTables] = useState([]);
   const [availableIds, setAvailableIds] = useState(new Set());
   const [selectedTable, setSelectedTable] = useState(null);
-  const [reservations, setReservations] = useState([]);
-
-  useEffect(() => {
-    const fetchReservations = async () => {
-      try {
-        const res = await fetch('http://localhost:5001/reservations');
-        const data = await res.json();
-        setReservations(data);
-      } catch (err) {
-        console.error('Fetch error:', err);
-      }
-    };
-    fetchReservations();
-  }, [bookingDetails.date, bookingDetails.time]);
+  const [occupiedTableIds, setOccupiedTableIds] = useState(new Set());
 
   const [form, setForm] = useState({
     firstName: '',
@@ -56,20 +43,13 @@ export default function Step2FloorPlan({ bookingDetails, onBack, onSuccess }) {
     return () => clearTimeout(handler);
   }, [form.time]);
 
-  const reservationsForDate = reservations.filter(r =>
-    r.date === bookingDetails.date &&
-    ['pending', 'accepted'].includes(r.status) &&
-    timesOverlap(r.time, form.time)
-  );
-
   useEffect(() => {
     if (selectedTable) {
-      const isOccupied = reservationsForDate.some(r => r.table_id === selectedTable.id || r.table_name === selectedTable.name);
-      if (isOccupied) {
+      if (occupiedTableIds.has(selectedTable.id)) {
         setSelectedTable(null);
       }
     }
-  }, [reservationsForDate, selectedTable]);
+  }, [occupiedTableIds, selectedTable]);
 
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
@@ -102,6 +82,15 @@ export default function Step2FloorPlan({ bookingDetails, onBack, onSuccess }) {
         } else {
           setAvailableIds(new Set(allTables.map(t => t.id)));
         }
+
+        // Fetch occupied tables for this date/time (public endpoint, no auth needed)
+        const resOccupied = await fetch(`http://localhost:5001/api/occupied-tables?date=${bookingDetails.date}&time=${debouncedTime}`);
+        if (resOccupied.ok) {
+          const occupiedIds = await resOccupied.json();
+          setOccupiedTableIds(new Set(occupiedIds));
+        } else {
+          setOccupiedTableIds(new Set());
+        }
       } catch (err) {
         console.error('Fetch error:', err);
         const dummyTables = MAP_TABLES.map((t, i) => ({ id: i + 1, name: t.name, capacity: 4 }));
@@ -116,15 +105,8 @@ export default function Step2FloorPlan({ bookingDetails, onBack, onSuccess }) {
     // Supabase Realtime Subscription
     const channel = supabase
       .channel('public:reservations_floorplan')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'reservations' }, async () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'reservations' }, () => {
         fetchData();
-        try {
-          const res = await fetch('http://localhost:5001/reservations');
-          const data = await res.json();
-          setReservations(data);
-        } catch (err) {
-          console.error('Fetch error (realtime):', err);
-        }
       })
       .subscribe();
 
@@ -263,8 +245,7 @@ export default function Step2FloorPlan({ bookingDetails, onBack, onSuccess }) {
               const isAvailable = availableIds.has(tableData.id);
               const isSelected = selectedTable?.id === tableData.id;
               const isTooSmall = Number(form.guests) > tableData.capacity;
-              const tableRes = reservationsForDate.filter(r => r.table_id === tableData.id || r.table_name === pos.name);
-              const isOccupied = tableRes.length > 0;
+              const isOccupied = occupiedTableIds.has(tableData.id);
 
               let bgClass = "bg-dickens-green"; // Available
               if (isOccupied) bgClass = "!bg-dickens-red shadow-md text-white cursor-not-allowed"; // Occupied from Admin
@@ -300,8 +281,7 @@ export default function Step2FloorPlan({ bookingDetails, onBack, onSuccess }) {
             const isAvailable = availableIds.has(tableData.id);
             const isSelected = selectedTable?.id === tableData.id;
             const isTooSmall = Number(form.guests) > tableData.capacity;
-            const tableRes = reservationsForDate.filter(r => r.table_id === tableData.id || r.table_name === pos.name);
-            const isOccupied = tableRes.length > 0;
+            const isOccupied = occupiedTableIds.has(tableData.id);
 
             let bgClass = "bg-dickens-green"; // Available
             if (isOccupied) bgClass = "!bg-dickens-red shadow-md text-white cursor-not-allowed"; // Occupied from Admin
