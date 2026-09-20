@@ -1,28 +1,35 @@
-// Dot x-positions (%) evenly spaced across the row, and alternating y (%) to create the wave.
+// Dot x-positions (%) evenly spaced across the row; all dots sit on the same horizontal line.
+const DOT_Y = 50;
 const POINTS = [
-  { x: 10, y: 62 },
-  { x: 30, y: 15 },
-  { x: 50, y: 70 },
-  { x: 70, y: 15 },
-  { x: 90, y: 62 },
+  { x: 10, y: DOT_Y },
+  { x: 30, y: DOT_Y },
+  { x: 50, y: DOT_Y },
+  { x: 70, y: DOT_Y },
+  { x: 90, y: DOT_Y },
 ];
 
-function buildWavePath(points) {
+// The line itself still bulges up/down between dots (wavy connector),
+// even though the dots it connects all sit at the same y.
+const WAVE_AMPLITUDE = 14;
+
+function buildWavePath(points, amplitude) {
   let d = `M ${points[0].x} ${points[0].y}`;
   for (let i = 1; i < points.length; i++) {
     const prev = points[i - 1];
     const curr = points[i];
     const midX = (prev.x + curr.x) / 2;
-    d += ` C ${midX} ${prev.y}, ${midX} ${curr.y}, ${curr.x} ${curr.y}`;
+    const sign = i % 2 === 0 ? 1 : -1;
+    const bulgeY = prev.y + sign * amplitude;
+    d += ` C ${midX} ${bulgeY}, ${midX} ${bulgeY}, ${curr.x} ${curr.y}`;
   }
   return d;
 }
 
-const WAVE_PATH = buildWavePath(POINTS);
+const WAVE_PATH = buildWavePath(POINTS, WAVE_AMPLITUDE);
 
 export default function StepProgress({ currentStep, steps, onStepClick }) {
   return (
-    <div className="relative w-full max-w-3xl mx-auto h-24 mb-6 select-none">
+    <div className="relative w-full max-w-3xl mx-auto h-20 mb-6 select-none">
       <svg
         className="absolute inset-0 w-full h-full"
         viewBox="0 0 100 100"
