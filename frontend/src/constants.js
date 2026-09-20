@@ -36,3 +36,23 @@ export const MAP_TABLES = [
 ];
 
 export const RESERVATION_DURATION_MIN = 90;
+
+export const GUEST_OPTIONS = [1, 2, 3, 4, 5, 6, 7];
+
+export function getAvailableTimes(dateStr) {
+  const date = new Date(dateStr);
+  const day = date.getDay(); // 0 is Sunday, 1 is Monday, ..., 6 is Saturday
+  const isWeekend = day === 0 || day === 5 || day === 6; // Fri, Sat, Sun
+  const startHour = isWeekend ? 11 : 12;
+  const endHour = 21;
+
+  const times = [];
+  for (let h = startHour; h <= endHour; h++) {
+    for (let m = 0; m < 60; m += 15) {
+      if (h === endHour && m > 0) break;
+      const timeStr = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+      times.push(timeStr);
+    }
+  }
+  return times;
+}

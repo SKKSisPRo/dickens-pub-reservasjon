@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function Step1Calendar({ onSelect }) {
+export default function Step2Date({ onSelect, onBack }) {
   const today = new Date();
   const [currentDate, setCurrentDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
 
@@ -31,6 +31,10 @@ export default function Step1Calendar({ onSelect }) {
 
   return (
     <div className="flex flex-col items-center w-full max-w-4xl mx-auto py-4">
+      <div className="w-full max-w-md flex justify-start mb-2">
+        <button onClick={onBack} className="text-dickens-green hover:underline">&larr; Tilbake</button>
+      </div>
+
       <h1 className="font-gothic text-4xl md:text-5xl text-dickens-green mb-6 text-center drop-shadow-sm">
         Velg dato for besøket
       </h1>

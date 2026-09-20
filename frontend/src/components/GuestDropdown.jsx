@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
+import { GUEST_OPTIONS } from '../constants';
 
 export default function GuestDropdown({ value, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const options = [1, 2, 3, 4, 5, 6, 7];
+  const options = GUEST_OPTIONS;
 
   useEffect(() => {
     function handleClickOutside(event) {
