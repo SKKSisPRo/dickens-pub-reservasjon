@@ -20,27 +20,16 @@ export default function AdminLayout() {
         </div>
         
         <nav className="flex-grow py-6 flex flex-col gap-2 px-4">
-          <NavLink 
-            to="/admin" 
+          <NavLink
+            to="/admin"
             end
-            className={({ isActive }) => 
+            className={({ isActive }) =>
               `px-4 py-3 rounded-lg text-lg font-medium transition-colors ${
                 isActive ? 'bg-white/20 text-dickens-cream' : 'text-white/80 hover:bg-white/10 hover:text-white'
               }`
             }
           >
             Reservations
-          </NavLink>
-          
-          <NavLink 
-            to="/admin/map" 
-            className={({ isActive }) => 
-              `px-4 py-3 rounded-lg text-lg font-medium transition-colors ${
-                isActive ? 'bg-white/20 text-dickens-cream' : 'text-white/80 hover:bg-white/10 hover:text-white'
-              }`
-            }
-          >
-            Table Map
           </NavLink>
         </nav>
 

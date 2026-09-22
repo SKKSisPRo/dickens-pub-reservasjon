@@ -1,8 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import PublicBooking from './components/PublicBooking';
 import AdminLayout from './components/admin/AdminLayout';
-import ReservationsView from './components/admin/ReservationsView';
-import TableMap from './components/admin/TableMap';
+import Dashboard from './components/admin/Dashboard';
 import Login from './components/admin/Login';
 import RequireAuth from './components/admin/RequireAuth';
 
@@ -14,8 +13,7 @@ function App() {
         <Route path="/admin/login" element={<Login />} />
         <Route element={<RequireAuth />}>
           <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<ReservationsView />} />
-            <Route path="map" element={<TableMap />} />
+            <Route index element={<Dashboard />} />
           </Route>
         </Route>
       </Routes>
