@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { supabase } from '../../supabase';
 import { apiFetch } from '../../lib/api';
 import ReservationList from './ReservationList';
@@ -10,6 +11,7 @@ function todayStr() {
 }
 
 export default function Dashboard() {
+  const { jumpTarget } = useOutletContext() || {};
   const [reservations, setReservations] = useState([]);
   const [tablesData, setTablesData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,6 +53,13 @@ export default function Dashboard() {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  useEffect(() => {
+    if (!jumpTarget) return;
+    setSelectedDate(jumpTarget.date);
+    setSelectedReservationId(jumpTarget.id);
+    setActivePanel('list');
+  }, [jumpTarget]);
 
   const putReservation = async (payload) => {
     try {

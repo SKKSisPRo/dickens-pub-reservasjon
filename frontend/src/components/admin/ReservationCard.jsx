@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { RESERVATION_DURATION_MIN } from '../../constants';
 
 const STATUS_STYLES = {
@@ -51,9 +52,15 @@ export default function ReservationCard({
   onDelete,
 }) {
   const status = STATUS_STYLES[reservation.status] || STATUS_STYLES.pending;
+  const cardRef = useRef(null);
+
+  useEffect(() => {
+    if (isSelected) cardRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [isSelected]);
 
   return (
     <div
+      ref={cardRef}
       onClick={() => onSelect?.(reservation)}
       onMouseEnter={() => onHoverStart?.(reservation)}
       onMouseLeave={() => onHoverEnd?.(reservation)}
