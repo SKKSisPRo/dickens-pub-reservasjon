@@ -1,3 +1,5 @@
+import { RESERVATION_DURATION_MIN } from '../../constants';
+
 const STATUS_STYLES = {
   pending: { accent: 'bg-dickens-gold', badge: 'bg-dickens-gold/10 text-dickens-gold', label: 'Venter' },
   accepted: { accent: 'bg-dickens-green', badge: 'bg-dickens-green/10 text-dickens-green', label: 'Bekreftet' },
@@ -6,6 +8,16 @@ const STATUS_STYLES = {
 
 const PERSON_ICON = "M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z";
 const PHONE_ICON = "M3 5a2 2 0 012-2h1.586a1 1 0 01.707.293l2 2a1 1 0 010 1.414L8.414 8.586a13.05 13.05 0 006 6l1.879-1.879a1 1 0 011.414 0l2 2a1 1 0 01.293.707V17a2 2 0 01-2 2h-1C7.163 19 3 14.837 3 9V5z";
+const CLOCK_ICON = "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z";
+
+function formatBookingWindow(time) {
+  if (!time) return '';
+  const [h, m] = time.split(':').map(Number);
+  const start = h * 60 + (m || 0);
+  const end = start + RESERVATION_DURATION_MIN;
+  const fmt = (mins) => `${String(Math.floor(mins / 60) % 24).padStart(2, '0')}:${String(mins % 60).padStart(2, '0')}`;
+  return `${fmt(start)} – ${fmt(end)}`;
+}
 const CHECK_ICON = "M5 13l4 4L19 7";
 const X_ICON = "M6 18L18 6M6 6l12 12";
 const EDIT_ICON = "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z";
@@ -58,6 +70,13 @@ export default function ReservationCard({
             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d={PERSON_ICON} clipRule="evenodd" /></svg>
             {reservation.guests}
           </span>
+        </div>
+
+        <div className="flex items-center gap-1.5 text-xs text-gray-500">
+          <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d={CLOCK_ICON} />
+          </svg>
+          <span>{formatBookingWindow(reservation.time)}</span>
         </div>
 
         {reservation.phone && (
