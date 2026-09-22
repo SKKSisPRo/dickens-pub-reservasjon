@@ -10,44 +10,38 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="flex h-screen bg-[#F9FAFB] font-sans">
-      {/* Sidebar */}
-      <aside className="w-64 bg-dickens-green text-white flex flex-col flex-shrink-0">
-        <div className="h-20 flex items-center justify-center border-b border-white/20">
-          <Link to="/" className="flex items-center justify-center">
+    <div className="flex flex-col h-screen bg-[#F9FAFB] font-sans">
+      {/* Header */}
+      <header className="bg-dickens-green text-white flex items-start justify-between px-6 py-4 shadow-md border-b-4 border-dickens-gold flex-shrink-0">
+        <div className="flex flex-col gap-2">
+          <Link to="/">
             <img src="/Dickens_logo (1).png" alt="Dickens Pub" className="h-12 w-auto object-contain drop-shadow-md" />
           </Link>
-        </div>
-        
-        <nav className="flex-grow py-6 flex flex-col gap-2 px-4">
+
           <NavLink
             to="/admin"
             end
             className={({ isActive }) =>
-              `px-4 py-3 rounded-lg text-lg font-medium transition-colors ${
-                isActive ? 'bg-white/20 text-dickens-cream' : 'text-white/80 hover:bg-white/10 hover:text-white'
+              `text-lg font-medium transition-colors ${
+                isActive ? 'text-dickens-cream' : 'text-white/80 hover:text-white'
               }`
             }
           >
             Reservations
           </NavLink>
-        </nav>
-
-        <div className="p-4 border-t border-white/20">
-          <button
-            onClick={handleLogout}
-            className="w-full px-4 py-3 rounded-lg text-lg font-medium text-white/80 hover:bg-white/10 hover:text-white transition-colors text-left"
-          >
-            Logg ut
-          </button>
         </div>
-      </aside>
+
+        <button
+          onClick={handleLogout}
+          className="px-4 py-2 rounded-lg text-base font-medium text-white/80 hover:bg-white/10 hover:text-white transition-colors"
+        >
+          Logg ut
+        </button>
+      </header>
 
       {/* Main Content */}
-      <main className="flex-grow flex flex-col overflow-hidden">
-        <div className="flex-grow overflow-y-auto p-8">
-          <Outlet />
-        </div>
+      <main className="flex-grow overflow-y-auto p-8">
+        <Outlet />
       </main>
     </div>
   );
