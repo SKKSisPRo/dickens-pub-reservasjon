@@ -56,16 +56,13 @@ export default function StepProgress({ currentStep, steps, onStepClick }) {
         }
 
         return (
-          <div
-            key={step.id}
-            className="absolute flex flex-col items-center gap-2 w-24 -translate-x-1/2 -translate-y-1/2"
-            style={{ left: `${point.x}%`, top: `${point.y}%` }}
-          >
+          <div key={step.id}>
             <button
               type="button"
               disabled={!isClickable}
               onClick={() => isClickable && onStepClick(step.id)}
-              className={circleClasses}
+              className={`absolute -translate-x-1/2 -translate-y-1/2 ${circleClasses}`}
+              style={{ left: `${point.x}%`, top: `${point.y}%` }}
               aria-label={step.value || step.placeholder}
             >
               {isCompleted ? (
@@ -77,9 +74,10 @@ export default function StepProgress({ currentStep, steps, onStepClick }) {
               )}
             </button>
             <span
-              className={`text-[11px] md:text-xs text-center font-medium leading-tight ${
+              className={`absolute -translate-x-1/2 w-24 text-center text-[11px] md:text-xs font-medium leading-tight ${
                 isCurrent ? 'text-dickens-green font-semibold' : isCompleted ? 'text-dickens-green' : 'text-gray-400'
               }`}
+              style={{ left: `${point.x}%`, top: `calc(${point.y}% + 30px)` }}
             >
               {step.value || step.placeholder}
             </span>
