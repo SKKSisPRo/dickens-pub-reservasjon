@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { MAP_TABLES } from '../constants';
 import { TableShapeIcon } from './TableIcons';
+import BenchStrip from './BenchStrip';
+import TableMarker from './TableMarker';
 
 const PERSON_ICON_PATH = "M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z";
 
@@ -113,6 +115,42 @@ export default function Step4Table({ date, time, guests, selectedTable, onSelect
     );
   };
 
+  // STAGE DEMO: simplified marker + shared bench, T-series only, for review before
+  // applying across V/H series and replacing renderTable entirely.
+  const renderMarker = (pos, style) => {
+    const tableData = tables.find(t => t.name === pos.name) || { id: pos.name, name: pos.name, capacity: 4 };
+    const isAvailable = availableIds.has(tableData.id);
+    const isSelected = selectedTable?.id === tableData.id;
+    const isTooSmall = Number(guests) > tableData.capacity;
+    const isOccupied = occupiedTableIds.has(tableData.id);
+    const isDisabled = isOccupied || !isAvailable || isTooSmall;
+
+    let state = 'available';
+    if (isOccupied) state = 'occupied';
+    else if (isTooSmall) state = 'tooSmall';
+    else if (isSelected) state = 'selected';
+
+    return (
+      <button
+        key={pos.name}
+        disabled={isDisabled}
+        title={isTooSmall ? 'For lite for gruppen din' : ''}
+        onClick={() => {
+          if (isOccupied) return;
+          onSelect(tableData);
+        }}
+        style={style}
+        className={`relative w-11 h-11 md:w-12 md:h-12 flex items-center justify-center transition-transform duration-200 ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer hover:scale-105'
+          } ${isSelected ? 'scale-110 z-10 drop-shadow-[0_0_8px_rgba(184,134,44,0.7)]' : ''} ${isOccupied ? 'opacity-50' : ''} ${isTooSmall ? 'opacity-60' : ''}`}
+      >
+        <TableMarker state={state} capacity={tableData.capacity} className="w-full h-full" />
+        <span className="absolute bottom-0 left-0 text-center text-[9px] md:text-[10px] font-bold text-dickens-green bg-white/90 rounded px-1 shadow-sm">
+          {pos.name}
+        </span>
+      </button>
+    );
+  };
+
   return (
     <div className="w-full py-8">
       <div className="flex justify-between items-center mb-4">
@@ -149,9 +187,10 @@ export default function Step4Table({ date, time, guests, selectedTable, onSelect
           Scene
         </div>
 
-        {/* T-Series Tables */}
+        {/* T-Series Tables (stage demo: shared bench + simplified marker) */}
+        <BenchStrip top="0.5%" left="2%" width="80%" height="15%" />
         <div className="absolute top-[4%] left-[4%] w-[75%] flex flex-row justify-between">
-          {MAP_TABLES.filter(pos => pos.name.startsWith('T')).map((pos) => renderTable(pos))}
+          {MAP_TABLES.filter(pos => pos.name.startsWith('T')).map((pos) => renderMarker(pos))}
         </div>
 
         {/* Other Tables */}
