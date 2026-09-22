@@ -3,7 +3,6 @@ import { supabase } from '../../supabase';
 import { apiFetch } from '../../lib/api';
 import TimeDropdown from '../TimeDropdown';
 import { MAP_TABLES, RESERVATION_DURATION_MIN } from '../../constants';
-import { TableShapeIcon } from '../TableIcons';
 
 function formatBookingWindow(time) {
   if (!time) return '';
@@ -207,9 +206,10 @@ export default function TableMap() {
             );
           }
 
-          const tableState = isOccupied ? 'occupied' : 'available';
+          let bgClass = "bg-dickens-green"; // Available
+          if (isOccupied) bgClass = "bg-dickens-red shadow-md cursor-pointer"; // Occupied
 
-          const highlightClass = isSearchMatch ? "ring-4 ring-dickens-gold shadow-[0_0_15px_rgba(139,134,78,1)] scale-110 z-10 rounded" : "";
+          const highlightClass = isSearchMatch ? "border-4 border-dickens-gold shadow-[0_0_15px_rgba(139,134,78,1)] scale-110 z-10" : "border border-black/20";
 
           let tooltipClasses = "absolute z-[9999] w-60 bg-white border border-gray-200 shadow-2xl rounded-lg p-3 pointer-events-auto ";
           let arrowClasses = "absolute border-4 border-transparent ";
@@ -237,19 +237,9 @@ export default function TableMap() {
                 onClick={() => isOccupied && setActiveTableId(activeTableId === pos.name ? null : pos.name)}
                 onMouseEnter={() => isOccupied && setHoveredTableId(pos.name)}
                 onMouseLeave={() => setHoveredTableId(null)}
-                className={`relative w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 transition-all duration-300 ${isOccupied ? 'cursor-pointer' : ''} ${highlightClass}`}
+                className={`w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 flex flex-col items-center justify-center rounded text-white transition-all duration-300 ${bgClass} ${highlightClass}`}
               >
-                <TableShapeIcon
-                  shape={pos.shape}
-                  size={pos.size}
-                  state={tableState}
-                  rotation={pos.rotation || 0}
-                  flip={pos.flip}
-                  className="w-full h-full"
-                />
-                <span className="absolute bottom-0 inset-x-0 text-center text-[9px] md:text-[10px] font-bold text-dickens-green bg-white/90 rounded px-0.5">
-                  {pos.name}
-                </span>
+                <span className="font-bold text-sm md:text-base">{pos.name}</span>
               </div>
 
               {/* Tooltip */}

@@ -1,11 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { MAP_TABLES } from '../constants';
-import { TableShapeIcon } from './TableIcons';
-import BenchStrip from './BenchStrip';
-import TableMarker from './TableMarker';
-
-const PERSON_ICON_PATH = "M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z";
 
 export default function Step4Table({ date, time, guests, selectedTable, onSelect, onBack }) {
   const [tables, setTables] = useState([]);
@@ -70,91 +65,6 @@ export default function Step4Table({ date, time, guests, selectedTable, onSelect
     };
   }, [date, time]);
 
-  const renderTable = (pos, positionClass = 'relative', style) => {
-    const tableData = tables.find(t => t.name === pos.name) || { id: pos.name, name: pos.name, capacity: 4 };
-    const isAvailable = availableIds.has(tableData.id);
-    const isSelected = selectedTable?.id === tableData.id;
-    const isTooSmall = Number(guests) > tableData.capacity;
-    const isOccupied = occupiedTableIds.has(tableData.id);
-    const isDisabled = isOccupied || !isAvailable || isTooSmall;
-
-    let state = 'available';
-    if (isOccupied) state = 'occupied';
-    else if (isTooSmall) state = 'tooSmall';
-    else if (isSelected) state = 'selected';
-
-    return (
-      <button
-        key={pos.name}
-        disabled={isDisabled}
-        title={isTooSmall ? 'For lite for gruppen din' : ''}
-        onClick={() => {
-          if (isOccupied) return;
-          onSelect(tableData);
-        }}
-        style={style}
-        className={`${positionClass} w-14 h-14 md:w-16 md:h-16 lg:w-[4.5rem] lg:h-[4.5rem] transition-transform duration-200 ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer hover:scale-105'
-          } ${isSelected ? 'scale-110 z-10 drop-shadow-[0_0_8px_rgba(184,134,44,0.7)]' : ''} ${isTooSmall ? 'opacity-60' : ''}`}
-      >
-        <TableShapeIcon
-          shape={pos.shape}
-          size={pos.size}
-          state={state}
-          rotation={pos.rotation || 0}
-          flip={pos.flip}
-          className="w-full h-full"
-        />
-        <span className="absolute top-0 right-0 flex items-center gap-0.5 text-[9px] md:text-[10px] font-semibold text-white bg-dickens-green/90 px-1 py-0.5 rounded-full shadow-sm">
-          <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d={PERSON_ICON_PATH} clipRule="evenodd" /></svg>
-          {tableData.capacity}
-        </span>
-        <span className="absolute bottom-0 inset-x-0 text-center text-[9px] md:text-[10px] font-bold text-dickens-green bg-white/90 rounded px-0.5">
-          {pos.name}
-        </span>
-      </button>
-    );
-  };
-
-  // STAGE DEMO: composite table+chairs marker + shared bench, T-series only, for
-  // review before applying across V/H series and replacing renderTable entirely.
-  const renderMarker = (pos, rotation, style) => {
-    const tableData = tables.find(t => t.name === pos.name) || { id: pos.name, name: pos.name, capacity: 4 };
-    const isAvailable = availableIds.has(tableData.id);
-    const isSelected = selectedTable?.id === tableData.id;
-    const isTooSmall = Number(guests) > tableData.capacity;
-    const isOccupied = occupiedTableIds.has(tableData.id);
-    const isDisabled = isOccupied || !isAvailable || isTooSmall;
-
-    let state = 'available';
-    if (isOccupied) state = 'occupied';
-    else if (isTooSmall) state = 'tooSmall';
-    else if (isSelected) state = 'selected';
-
-    return (
-      <button
-        key={pos.name}
-        disabled={isDisabled}
-        title={isTooSmall ? 'For lite for gruppen din' : ''}
-        onClick={() => {
-          if (isOccupied) return;
-          onSelect(tableData);
-        }}
-        style={style}
-        className={`relative w-14 h-14 md:w-16 md:h-16 lg:w-[4.5rem] lg:h-[4.5rem] transition-transform duration-200 ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer hover:scale-105'
-          } ${isSelected ? 'scale-110 z-10' : ''} ${isOccupied ? 'opacity-50' : ''} ${isTooSmall ? 'opacity-60' : ''}`}
-      >
-        <TableMarker state={state} rotation={rotation} className="w-full h-full" />
-        <span className="absolute top-0 right-0 flex items-center gap-0.5 text-[9px] md:text-[10px] font-semibold text-white bg-dickens-green/90 px-1 py-0.5 rounded-full shadow-sm">
-          <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d={PERSON_ICON_PATH} clipRule="evenodd" /></svg>
-          {tableData.capacity}
-        </span>
-        <span className="absolute bottom-0 inset-x-0 text-center text-[9px] md:text-[10px] font-bold text-dickens-green bg-white/90 rounded px-0.5">
-          {pos.name}
-        </span>
-      </button>
-    );
-  };
-
   return (
     <div className="w-full py-8">
       <div className="flex justify-between items-center mb-4">
@@ -191,16 +101,76 @@ export default function Step4Table({ date, time, guests, selectedTable, onSelect
           Scene
         </div>
 
-        {/* T-Series Tables (stage demo: shared bench + composite table+chairs marker) */}
-        <BenchStrip top="0.5%" left="2%" width="80%" height="4%" />
+        {/* T-Series Tables */}
         <div className="absolute top-[4%] left-[4%] w-[75%] flex flex-row justify-between">
-          {MAP_TABLES.filter(pos => pos.name.startsWith('T')).map((pos) => renderMarker(pos, 180))}
+          {MAP_TABLES.filter(pos => pos.name.startsWith('T')).map((pos) => {
+            const tableData = tables.find(t => t.name === pos.name) || { id: pos.name, name: pos.name, capacity: 4 };
+            const isAvailable = availableIds.has(tableData.id);
+            const isSelected = selectedTable?.id === tableData.id;
+            const isTooSmall = Number(guests) > tableData.capacity;
+            const isOccupied = occupiedTableIds.has(tableData.id);
+
+            let bgClass = "bg-dickens-green"; // Available
+            if (isOccupied) bgClass = "!bg-dickens-red shadow-md text-white cursor-not-allowed"; // Occupied from Admin
+            else if (isTooSmall) bgClass = "bg-gray-400 opacity-60 cursor-not-allowed"; // Too small
+            else if (isSelected) bgClass = "bg-dickens-gold shadow-[0_0_10px_rgba(139,134,78,0.8)] scale-110 z-10"; // Selected
+            else if (isAvailable) bgClass = "bg-dickens-green hover:bg-dickens-lightgreen cursor-pointer"; // Available
+
+            return (
+              <button
+                key={pos.name}
+                disabled={isOccupied || !isAvailable || isTooSmall}
+                title={isTooSmall ? "Too small for your group" : ""}
+                onClick={() => {
+                  if (isOccupied) return;
+                  onSelect(tableData);
+                }}
+                className={`w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 flex flex-col items-center justify-center rounded text-white shadow-md transition-all duration-200 border border-black/20 ${bgClass}`}
+              >
+                <span className="font-bold text-sm md:text-base">{pos.name}</span>
+                <span className="text-xs flex items-center gap-1 opacity-90">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>
+                  {tableData.capacity}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Other Tables */}
-        {MAP_TABLES.filter(pos => !pos.name.startsWith('T')).map((pos) =>
-          renderTable(pos, 'absolute', { top: pos.top, left: pos.left })
-        )}
+        {MAP_TABLES.filter(pos => !pos.name.startsWith('T')).map((pos) => {
+          const tableData = tables.find(t => t.name === pos.name) || { id: pos.name, name: pos.name, capacity: 4 };
+          const isAvailable = availableIds.has(tableData.id);
+          const isSelected = selectedTable?.id === tableData.id;
+          const isTooSmall = Number(guests) > tableData.capacity;
+          const isOccupied = occupiedTableIds.has(tableData.id);
+
+          let bgClass = "bg-dickens-green"; // Available
+          if (isOccupied) bgClass = "!bg-dickens-red shadow-md text-white cursor-not-allowed"; // Occupied from Admin
+          else if (isTooSmall) bgClass = "bg-gray-400 opacity-60 cursor-not-allowed"; // Too small
+          else if (isSelected) bgClass = "bg-dickens-gold shadow-[0_0_10px_rgba(139,134,78,0.8)] scale-110 z-10"; // Selected
+          else if (isAvailable) bgClass = "bg-dickens-green hover:bg-dickens-lightgreen cursor-pointer"; // Available
+
+          return (
+            <button
+              key={pos.name}
+              disabled={isOccupied || !isAvailable || isTooSmall}
+              title={isTooSmall ? "Too small for your group" : ""}
+              onClick={() => {
+                if (isOccupied) return;
+                onSelect(tableData);
+              }}
+              className={`absolute w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 flex flex-col items-center justify-center rounded text-white shadow-md transition-all duration-200 border border-black/20 ${bgClass}`}
+              style={{ top: pos.top, left: pos.left }}
+            >
+              <span className="font-bold text-sm md:text-base">{pos.name}</span>
+              <span className="text-xs flex items-center gap-1 opacity-90">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>
+                {tableData.capacity}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
