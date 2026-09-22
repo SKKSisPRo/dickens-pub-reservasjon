@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { supabase } from '../../supabase';
 import { apiFetch } from '../../lib/api';
 import ReservationList from './ReservationList';
 import FloorPlanPanel from './FloorPlanPanel';
@@ -11,10 +10,8 @@ function todayStr() {
 }
 
 export default function Dashboard() {
-  const { jumpTarget } = useOutletContext() || {};
-  const [reservations, setReservations] = useState([]);
+  const { reservations, loading, fetchReservations, jumpTarget } = useOutletContext();
   const [tablesData, setTablesData] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   const [selectedDate, setSelectedDate] = useState(todayStr());
   const [selectedReservationId, setSelectedReservationId] = useState(null);
@@ -22,36 +19,11 @@ export default function Dashboard() {
   const [editModal, setEditModal] = useState({ open: false, data: null });
   const [activePanel, setActivePanel] = useState('list'); // mobile/tablet tab: 'list' | 'map'
 
-  const fetchReservations = async () => {
-    setLoading(true);
-    try {
-      const res = await apiFetch('/reservations');
-      const data = await res.json();
-      setReservations(data);
-    } catch (err) {
-      console.error('Fetch error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchReservations();
     apiFetch('/tables')
       .then(res => res.json())
       .then(setTablesData)
       .catch(console.error);
-
-    const channel = supabase
-      .channel('public:reservations')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'reservations' }, () => {
-        fetchReservations();
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, []);
 
   useEffect(() => {
