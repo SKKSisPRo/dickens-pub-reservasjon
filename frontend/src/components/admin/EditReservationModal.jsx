@@ -1,8 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TimeDropdown from '../TimeDropdown';
+import useReducedMotion from '../../hooks/useReducedMotion';
 
 export default function EditReservationModal({ reservation, tablesData, onClose, onSave }) {
   const [data, setData] = useState(reservation);
+  const [entered, setEntered] = useState(false);
+  const reducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setEntered(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
   const table = tablesData.find(t => t.id === data.tableId);
   const activeTableCapacity = table ? table.capacity : null;
@@ -14,9 +22,20 @@ export default function EditReservationModal({ reservation, tablesData, onClose,
     onSave(data);
   };
 
+  const shown = reducedMotion || entered;
+
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100]">
-      <div className="bg-white rounded-xl shadow-xl p-8 w-[500px]">
+    <div
+      className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100]"
+      style={{ opacity: shown ? 1 : 0, transition: 'opacity 200ms var(--ease-out)' }}
+    >
+      <div
+        className="bg-white rounded-xl shadow-xl p-8 w-[500px]"
+        style={{
+          transform: shown ? 'scale(1)' : 'scale(0.95)',
+          transition: 'transform 200ms var(--ease-out)',
+        }}
+      >
         <h3 className="text-2xl font-bold mb-6 text-gray-900 font-gothic tracking-wide">Rediger Reservasjon #{data.id}</h3>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">

@@ -75,9 +75,9 @@ export default function Step2Date({ onSelect, onBack }) {
                 key={index}
                 disabled={isDisabled}
                 onClick={() => onSelect(dateStr)}
-                className={`h-10 flex items-center justify-center rounded-lg text-base font-medium border shadow-sm transition-colors ${isDisabled
+                className={`h-10 flex items-center justify-center rounded-lg text-base font-medium border shadow-sm transition-[color,background-color,border-color,transform] duration-150 ${isDisabled
                     ? 'bg-gray-200 text-gray-400 border-gray-200 cursor-not-allowed'
-                    : 'bg-gray-50 text-gray-800 hover:bg-dickens-gold hover:text-white border-gray-100'
+                    : 'bg-gray-50 text-gray-800 hover:bg-dickens-gold hover:text-white border-gray-100 active:scale-95'
                   }`}
               >
                 {day}

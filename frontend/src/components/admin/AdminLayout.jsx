@@ -10,7 +10,7 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#F9FAFB] font-sans">
+    <div className="flex flex-col h-dvh bg-[#F9FAFB] font-sans">
       {/* Header */}
       <header className="bg-dickens-green text-white flex items-center justify-between px-6 py-4 shadow-md border-b-4 border-dickens-gold flex-shrink-0">
         <Link to="/">
@@ -19,7 +19,7 @@ export default function AdminLayout() {
 
         <button
           onClick={handleLogout}
-          className="px-6 py-2.5 rounded-full text-base font-gothic font-bold text-[#2A1D14] bg-dickens-cream shadow-md hover:shadow-lg hover:brightness-95 transition-all"
+          className="px-6 py-2.5 rounded-full text-base font-gothic font-bold text-[#2A1D14] bg-dickens-cream shadow-md hover:shadow-lg hover:brightness-95 transition-[box-shadow,filter,transform] active:scale-95"
         >
           Logg ut
         </button>

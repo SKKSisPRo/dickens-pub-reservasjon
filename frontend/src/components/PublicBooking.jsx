@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import StepProgress from './StepProgress';
+import StepTransition from './StepTransition';
 import Step1Guests from './Step1Guests';
 import Step2Date from './Step2Date';
 import Step3Time from './Step3Time';
@@ -33,8 +34,10 @@ function PublicBooking() {
   const [countryCode, setCountryCode] = useState('+47');
   const [additionalInfo, setAdditionalInfo] = useState('');
 
-  const goNext = () => setCurrentStep(s => Math.min(5, s + 1));
-  const goBack = () => setCurrentStep(s => Math.max(1, s - 1));
+  const [direction, setDirection] = useState('forward');
+  const goNext = () => { setDirection('forward'); setCurrentStep(s => Math.min(5, s + 1)); };
+  const goBack = () => { setDirection('back'); setCurrentStep(s => Math.max(1, s - 1)); };
+  const jumpToStep = (step) => { setDirection('back'); setCurrentStep(step); };
 
   const handleFieldChange = (field, value) => {
     switch (field) {
@@ -56,7 +59,7 @@ function PublicBooking() {
   ];
 
   return (
-    <div className={`flex flex-col ${isSuccess ? 'h-screen overflow-hidden' : 'min-h-screen'}`}>
+    <div className={`flex flex-col ${isSuccess ? 'h-dvh overflow-hidden' : 'min-h-screen'}`}>
       <Header />
 
       <main className="flex-grow p-4 md:p-8 flex flex-col items-center">
@@ -64,11 +67,12 @@ function PublicBooking() {
           <StepProgress
             currentStep={currentStep}
             steps={steps}
-            onStepClick={setCurrentStep}
+            onStepClick={jumpToStep}
           />
         )}
 
         <div className="w-full max-w-6xl flex-grow flex flex-col">
+          <StepTransition key={currentStep} direction={direction}>
           {currentStep === 1 && (
             <Step1Guests
               guests={guests}
@@ -119,6 +123,7 @@ function PublicBooking() {
               onSuccess={() => setIsSuccess(true)}
             />
           )}
+          </StepTransition>
         </div>
       </main>
 

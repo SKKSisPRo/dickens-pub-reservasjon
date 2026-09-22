@@ -44,7 +44,7 @@ export default function FloorPlanPanel({ reservationsForDate, highlightedTableNa
         return (
           <div
             key={pos.name}
-            className={`absolute w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 flex flex-col items-center justify-center rounded text-white transition-all duration-200 ${bgClass} ${ringClass}`}
+            className={`absolute w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 flex flex-col items-center justify-center rounded text-white transition-[background-color,border-color,box-shadow,transform] duration-200 ${bgClass} ${ringClass}`}
             style={{ top: pos.top, left: pos.left }}
           >
             <span className="font-bold text-sm md:text-base">{pos.name}</span>

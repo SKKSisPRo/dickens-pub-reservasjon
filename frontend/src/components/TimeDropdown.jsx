@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { getAvailableTimes } from '../constants';
+import useReducedMotion from '../hooks/useReducedMotion';
 
 export default function TimeDropdown({ value, onChange, date }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [entered, setEntered] = useState(false);
   const dropdownRef = useRef(null);
   const times = getAvailableTimes(date);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -15,6 +18,15 @@ export default function TimeDropdown({ value, onChange, date }) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setEntered(false);
+      return;
+    }
+    const raf = requestAnimationFrame(() => setEntered(true));
+    return () => cancelAnimationFrame(raf);
+  }, [isOpen]);
 
   return (
     <div className="flex flex-col gap-1 relative w-full" ref={dropdownRef}>
@@ -29,7 +41,15 @@ export default function TimeDropdown({ value, onChange, date }) {
       </button>
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-1 w-full max-h-60 overflow-y-auto bg-dickens-green border border-dickens-gold rounded-md shadow-lg z-[999]">
+        <div
+          className="absolute top-full right-0 mt-1 w-full max-h-60 overflow-y-auto bg-dickens-green border border-dickens-gold rounded-md shadow-lg z-[999]"
+          style={{
+            transformOrigin: 'top',
+            opacity: reducedMotion || entered ? 1 : 0,
+            transform: reducedMotion || entered ? 'scale(1)' : 'scale(0.95)',
+            transition: 'opacity 150ms var(--ease-out), transform 150ms var(--ease-out)',
+          }}
+        >
           {times.map((t) => (
             <div
               key={t}

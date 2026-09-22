@@ -126,7 +126,7 @@ export default function Step4Table({ date, time, guests, selectedTable, onSelect
                   if (isOccupied) return;
                   onSelect(tableData);
                 }}
-                className={`w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 flex flex-col items-center justify-center rounded text-white shadow-md transition-all duration-200 border border-black/20 ${bgClass}`}
+                className={`w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 flex flex-col items-center justify-center rounded text-white shadow-md transition-[background-color,box-shadow,transform] duration-200 border border-black/20 active:scale-95 ${bgClass}`}
               >
                 <span className="font-bold text-sm md:text-base">{pos.name}</span>
                 <span className="text-xs flex items-center gap-1 opacity-90">
@@ -161,7 +161,7 @@ export default function Step4Table({ date, time, guests, selectedTable, onSelect
                 if (isOccupied) return;
                 onSelect(tableData);
               }}
-              className={`absolute w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 flex flex-col items-center justify-center rounded text-white shadow-md transition-all duration-200 border border-black/20 ${bgClass}`}
+              className={`absolute w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 flex flex-col items-center justify-center rounded text-white shadow-md transition-[background-color,box-shadow,transform] duration-200 border border-black/20 active:scale-95 ${bgClass}`}
               style={{ top: pos.top, left: pos.left }}
             >
               <span className="font-bold text-sm md:text-base">{pos.name}</span>

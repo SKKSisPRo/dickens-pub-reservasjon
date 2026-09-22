@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { GUEST_OPTIONS } from '../constants';
+import useReducedMotion from '../hooks/useReducedMotion';
 
 export default function GuestDropdown({ value, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [entered, setEntered] = useState(false);
   const dropdownRef = useRef(null);
   const options = GUEST_OPTIONS;
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -15,6 +18,15 @@ export default function GuestDropdown({ value, onChange }) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setEntered(false);
+      return;
+    }
+    const raf = requestAnimationFrame(() => setEntered(true));
+    return () => cancelAnimationFrame(raf);
+  }, [isOpen]);
 
   return (
     <div className="flex flex-col gap-1 relative w-[45px]" ref={dropdownRef}>
@@ -31,7 +43,15 @@ export default function GuestDropdown({ value, onChange }) {
       </button>
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-1 w-full max-h-40 overflow-y-auto bg-dickens-green border border-dickens-gold rounded-md shadow-lg z-50">
+        <div
+          className="absolute top-full right-0 mt-1 w-full max-h-40 overflow-y-auto bg-dickens-green border border-dickens-gold rounded-md shadow-lg z-50"
+          style={{
+            transformOrigin: 'top',
+            opacity: reducedMotion || entered ? 1 : 0,
+            transform: reducedMotion || entered ? 'scale(1)' : 'scale(0.95)',
+            transition: 'opacity 150ms var(--ease-out), transform 150ms var(--ease-out)',
+          }}
+        >
           {options.map((opt) => (
             <div
               key={opt}

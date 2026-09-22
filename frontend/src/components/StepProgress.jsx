@@ -46,7 +46,7 @@ export default function StepProgress({ currentStep, steps, onStepClick }) {
         const isClickable = isCompleted;
 
         let circleClasses =
-          'w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center font-semibold text-sm shadow-md transition-all duration-200 border-2';
+          'w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center font-semibold text-sm shadow-md transition-[background-color,border-color,color,box-shadow,transform] duration-200 border-2';
         if (isCompleted) {
           circleClasses += ' bg-dickens-green border-dickens-green text-white cursor-pointer hover:bg-dickens-lightgreen';
         } else if (isCurrent) {
@@ -66,7 +66,7 @@ export default function StepProgress({ currentStep, steps, onStepClick }) {
               aria-label={step.value || step.placeholder}
             >
               {isCompleted ? (
-                <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
+                <svg className="w-4 h-4 md:w-5 md:h-5 animate-checkmark" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               ) : (

@@ -21,7 +21,7 @@ export default function Step3Time({ date, time, onSelect, onBack }) {
               <button
                 key={t}
                 onClick={() => onSelect(t)}
-                className={`py-2.5 rounded-lg text-sm font-semibold border shadow-sm transition-colors ${
+                className={`py-2.5 rounded-lg text-sm font-semibold border shadow-sm transition-[color,background-color,border-color,transform] duration-150 active:scale-95 ${
                   isSelected
                     ? 'bg-dickens-gold text-white border-dickens-gold shadow-[0_0_10px_rgba(184,134,44,0.5)]'
                     : 'bg-gray-50 text-dickens-green border-gray-200 hover:bg-dickens-green hover:text-white'

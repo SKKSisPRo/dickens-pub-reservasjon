@@ -2,19 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer utilities {
-  .fade-enter {
+:root {
+  /* Strong entrance/exit curve — starts fast, feels responsive. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  /* For things moving/morphing on screen (not entering/exiting). */
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+@layer base {
+  * {
+    /* Mobile browsers flash a grey box on tap by default; every button here
+       already has its own hover/active feedback. */
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@keyframes checkmark-pop {
+  from {
     opacity: 0;
+    transform: scale(0.5);
   }
-  .fade-enter-active {
+  to {
     opacity: 1;
-    transition: opacity 300ms ease-in;
+    transform: scale(1);
   }
-  .fade-exit {
-    opacity: 1;
-  }
-  .fade-exit-active {
-    opacity: 0;
-    transition: opacity 300ms ease-in;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-checkmark {
+    animation: checkmark-pop 200ms var(--ease-out);
   }
 }
