@@ -14,7 +14,7 @@ export default function AdminLayout() {
       {/* Header */}
       <header className="bg-dickens-green text-white flex items-center justify-between px-6 py-4 shadow-md border-b-4 border-dickens-gold flex-shrink-0">
         <Link to="/">
-          <img src="/Dickens_logo (1).png" alt="Dickens Pub" className="h-12 w-auto object-contain drop-shadow-md" />
+          <img src="/dickens-logo.png" alt="Dickens Pub" className="h-12 w-auto object-contain drop-shadow-md" />
         </Link>
 
         <button
