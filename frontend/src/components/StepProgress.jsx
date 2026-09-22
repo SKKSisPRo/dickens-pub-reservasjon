@@ -8,11 +8,13 @@ const POINTS = [
   { x: 90, y: DOT_Y },
 ];
 
-function buildLinePath(points) {
-  return points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
-}
+// Gap (in the same % units as POINTS) left between a segment's end and the dot it approaches.
+const SEGMENT_GAP = 3.5;
 
-const LINE_PATH = buildLinePath(POINTS);
+const SEGMENTS = POINTS.slice(1).map((p, i) => {
+  const prev = POINTS[i];
+  return { x1: prev.x + SEGMENT_GAP, x2: p.x - SEGMENT_GAP, y: DOT_Y };
+});
 
 export default function StepProgress({ currentStep, steps, onStepClick }) {
   return (
@@ -22,13 +24,19 @@ export default function StepProgress({ currentStep, steps, onStepClick }) {
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
       >
-        <path
-          d={LINE_PATH}
-          fill="none"
-          stroke="#D1D5DB"
-          strokeWidth="1.5"
-          vectorEffect="non-scaling-stroke"
-        />
+        {SEGMENTS.map((seg, i) => (
+          <line
+            key={i}
+            x1={seg.x1}
+            y1={seg.y}
+            x2={seg.x2}
+            y2={seg.y}
+            stroke="#1E4538"
+            strokeWidth="2"
+            strokeLinecap="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        ))}
       </svg>
 
       {steps.map((step, i) => {
