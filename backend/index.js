@@ -1,11 +1,49 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+
+app.set('trust proxy', 1); // needed for req.secure / rate-limit to see the real client behind a host's proxy
+
+app.use(helmet());
+
+// Force HTTPS in production. Most hosts (Render, Railway, Vercel, etc.) terminate
+// TLS at a proxy in front of the app, so check x-forwarded-proto rather than req.secure.
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV === 'production' && req.headers['x-forwarded-proto'] !== 'https') {
+    return res.redirect(301, `https://${req.headers.host}${req.originalUrl}`);
+  }
+  next();
+});
+
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim()).filter(Boolean);
+app.use(cors({
+  origin: allowedOrigins.length > 0 ? allowedOrigins : true, // falls back to reflecting any origin only if unset (dev)
+}));
+
+app.use(express.json({ limit: '20kb' })); // small cap — no field here needs more than that
+
+// Generic API rate limit
+app.use(rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+}));
+
+// Tighter limit on the public booking endpoint specifically — the one place
+// a bot/script could spam fake reservations.
+const bookingLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'For mange forespørsler. Prøv igjen senere.' },
+});
 
 const supabaseUrl = process.env.SUPABASE_URL || 'http://localhost:54321';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy';
@@ -13,10 +51,21 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 const PORT = 5001;
 
+// Admin allowlist — a valid Supabase session alone only proves someone can log
+// in, not that they're staff. Restrict admin routes to known admin emails.
+const adminEmails = new Set(
+  (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean)
+);
+if (adminEmails.size === 0) {
+  console.warn('WARNING: ADMIN_EMAILS is not set — all admin routes will reject every request. Set it in .env.');
+}
+
 /* =====================
    Auth middleware — protects admin-only routes.
    Expects "Authorization: Bearer <supabase access token>" from a logged-in
-   Supabase Auth session (see frontend/src/lib/api.js).
+   Supabase Auth session (see frontend/src/lib/api.js). Also checks the
+   session's email against ADMIN_EMAILS, since a valid Supabase account by
+   itself doesn't imply staff access.
 ===================== */
 async function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization || '';
@@ -25,6 +74,10 @@ async function requireAuth(req, res, next) {
 
   const { data, error } = await supabase.auth.getUser(token);
   if (error || !data?.user) return res.status(401).json({ error: 'Invalid or expired session' });
+
+  if (!adminEmails.has((data.user.email || '').toLowerCase())) {
+    return res.status(403).json({ error: 'Not authorized for admin access' });
+  }
 
   req.user = data.user;
   next();
@@ -111,6 +164,17 @@ function validateBookingRules({ date, time, guests }) {
     return 'Online booking must be at least 24 hours in advance';
   }
 
+  return null;
+}
+
+const RESERVATION_STATUSES = ['pending', 'accepted', 'declined'];
+
+function validateTextFields({ name, additionalInfo }) {
+  if (typeof name !== 'string' || name.trim().length === 0) return 'Name is required';
+  if (name.length > 100) return 'Name is too long';
+  if (additionalInfo != null && (typeof additionalInfo !== 'string' || additionalInfo.length > 500)) {
+    return 'Additional info is too long';
+  }
   return null;
 }
 
@@ -233,11 +297,16 @@ app.get('/reservations', requireAuth, async (req, res) => {
   res.json(formattedData);
 });
 
-app.post('/reservations', async (req, res) => {
+app.post('/reservations', bookingLimiter, async (req, res) => {
   const { tableId, name, phone, date, time, guests, additionalInfo } = req.body;
 
   if (!tableId || !name || !date || !time || !guests) {
     return res.status(400).json({ error: 'Missing fields' });
+  }
+
+  const textError = validateTextFields({ name, additionalInfo });
+  if (textError) {
+    return res.status(400).json({ error: textError });
   }
 
   const ruleError = validateBookingRules({ date, time, guests });
@@ -284,14 +353,14 @@ app.post('/reservations', async (req, res) => {
 
   const mappedObject = {
     table_id: Number(tableId),
-    name,
+    name: name.trim(),
     phone: phone || null,
     date,
     time,
     guests: Number(guests),
     status: 'pending',
     expires_at,
-    additional_info: additionalInfo || null
+    additional_info: additionalInfo ? additionalInfo.trim() : null
   };
 
   try {
@@ -338,6 +407,15 @@ app.put('/reservations/:id', requireAuth, async (req, res) => {
     return res.status(400).json({ error: 'Missing fields' });
   }
 
+  if (!RESERVATION_STATUSES.includes(status)) {
+    return res.status(400).json({ error: 'Invalid status' });
+  }
+
+  const textError = validateTextFields({ name, additionalInfo });
+  if (textError) {
+    return res.status(400).json({ error: textError });
+  }
+
   // Table capacity check
   const { data: table, error: tableErr } = await supabase
     .from('tables')
@@ -366,13 +444,13 @@ app.put('/reservations/:id', requireAuth, async (req, res) => {
 
   const mappedObject = {
     table_id: Number(actualTableId),
-    name,
+    name: name.trim(),
     phone: phone || null,
     date,
     time,
     guests: Number(guests),
     status,
-    additional_info: additionalInfo || null
+    additional_info: additionalInfo ? additionalInfo.trim() : null
   };
 
   try {

@@ -79,17 +79,25 @@ dickens-pub-reservasjon/
 │   │   ├── index.css             # Global CSS og Tailwind-importering
 │   │   ├── constants.js          # Delte konstanter (bordposisjoner, landskoder, reservasjonslengde)
 │   │   └── components/
-│   │       ├── PublicBooking.jsx    # Orkestrator for bookingflyten, styrer steg 1 og 2
-│   │       ├── Step1Calendar.jsx    # Datovelger med norske månedsnavn og ukedager
-│   │       ├── Step2FloorPlan.jsx   # Interaktivt bordkart, bookingskjema og sanntidslytting
+│   │       ├── PublicBooking.jsx    # Orkestrator for bookingflyten (5 steg), eier all booking-state
+│   │       ├── StepProgress.jsx     # Fremdriftsindikator for de 5 stegene
+│   │       ├── Step1Guests.jsx      # Steg 1: antall gjester
+│   │       ├── Step2Date.jsx        # Steg 2: datovelger med norske månedsnavn og ukedager
+│   │       ├── Step3Time.jsx        # Steg 3: tidspunktvelger
+│   │       ├── Step4Table.jsx       # Steg 4: interaktivt bordkart
+│   │       ├── Step5Details.jsx     # Steg 5: kontaktinfo, oppsummering og innsending
 │   │       ├── TimeDropdown.jsx     # Tidsvelger, ukedager 12–21 og helger 11–21, 15 min intervaller
 │   │       ├── GuestDropdown.jsx    # Nedtrekksmeny for antall gjester (1–7)
 │   │       ├── Header.jsx           # Header med Dickens-logo og undertekst
 │   │       ├── Footer.jsx           # Footer med skjult admin-lenke
 │   │       └── admin/
-│   │           ├── AdminLayout.jsx       # Sidebar-layout med navigasjon mellom admin-sider
-│   │           ├── ReservationsView.jsx  # Reservasjonstabell med søk, filter, redigering og sletting
-│   │           └── TableMap.jsx          # Visuelt admin-bordkart med tooltip og datofilter
+│   │           ├── AdminLayout.jsx           # Header med logo og logg ut
+│   │           ├── Dashboard.jsx             # Kombinert reservasjonsliste + bordkart, all data-henting
+│   │           ├── ReservationList.jsx       # Venstre panel: reservasjoner gruppert på klokkeslett
+│   │           ├── ReservationCard.jsx       # Ett reservasjonskort med statusfarge og hurtighandlinger
+│   │           ├── MiniCalendar.jsx          # Månedskalender for datovalg
+│   │           ├── FloorPlanPanel.jsx        # Høyre panel: visuelt bordkart
+│   │           └── EditReservationModal.jsx  # Redigeringsskjema for en reservasjon
 │   ├── package.json              # Frontend-avhengigheter (react, react-dom, react-router-dom, supabase-js)
 │   ├── vite.config.js            # Vite konfigurasjon, utviklingsserver på port 8000
 │   ├── tailwind.config.js        # Tailwind konfigurasjon med Dickens-farger (grønn, gull, krem)
@@ -202,19 +210,33 @@ Forretningslogikk-tester (kapasitet, 24h-regel, stengetid, CRUD):
 bash tests/run_cloud_tests.sh
 ```
 
+## Sikkerhet
+
+- Admin-panelet krever innlogging (Supabase Auth) på både frontend (`RequireAuth`) og backend
+  (`requireAuth`-middleware som sjekker Supabase-sesjonstoken på hvert admin-endepunkt)
+- Adgang til admin er i tillegg begrenset til en allowliste (`ADMIN_EMAILS` i backend/.env) —
+  en gyldig Supabase-konto alene er ikke nok
+- Row Level Security er skrudd på for `areas`, `tables` og `reservations`
+  (se `supabase_rls_policies.sql` — må kjøres manuelt i Supabase SQL Editor)
+- `helmet` for sikkerhetsheadere, rate limiting på alle endepunkter (strengere på
+  `POST /reservations` spesifikt for å hindre spam-bookinger)
+- CORS begrenset til domener i `ALLOWED_ORIGINS`, HTTPS håndheves når `NODE_ENV=production`
+- All databasetilgang går via Supabase sin query builder (ingen rå SQL), så SQL-injeksjon er
+  ikke en risiko
+
 ## Kjente begrensninger
 
-- Ingen autentisering på admin-panelet
 - Kun første etasje innendørs er implementert
 - Ingen SMS/e-postvarsling til gjester
 - Noen feilmeldinger er på engelsk
 - Bordposisjonering er hardkodet med CSS-prosenter
 - Ingen GDPR-samtykke eller automatisk sletting av persondata
+- Live-oppdatering (Supabase Realtime) på bordkartet krever egen tilpasning etter at RLS er
+  aktivert — se trade-off-notatet i `supabase_rls_policies.sql`
 
 ## Fremtidig utvikling
 
 - SMS-bekreftelser til gjester
-- Innlogging for admin-panelet
 - Støtte for andre etasje og uteterrasser
 - Integrering med kassesystem
 - 360-graders visning fra bordene

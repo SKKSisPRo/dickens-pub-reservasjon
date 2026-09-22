@@ -29,8 +29,13 @@ CREATE TABLE IF NOT EXISTS reservations (
     guests INTEGER NOT NULL DEFAULT 1,
     status VARCHAR(50) DEFAULT 'pending',
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    expires_at TIMESTAMPTZ
+    expires_at TIMESTAMPTZ,
+    additional_info TEXT
 );
+
+-- Safe to run against an existing database too — backend/index.js reads and
+-- writes this column, but it was missing from this schema file.
+ALTER TABLE reservations ADD COLUMN IF NOT EXISTS additional_info TEXT;
 
 -- Seed Areas
 INSERT INTO areas (id, name, description, outdoor, level) VALUES
