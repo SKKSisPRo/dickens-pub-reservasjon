@@ -1,12 +1,7 @@
 export default function Header() {
   return (
-    <header className="bg-dickens-green w-full px-6 py-4 flex items-center justify-start shadow-md text-dickens-cream border-b-4 border-dickens-gold">
-      <div className="flex items-center gap-4">
-        <img src="/dickens-logo.png" alt="Dickens Pub" className="h-14 w-auto object-contain" />
-        <div className="flex flex-col ml-2 border-l-2 border-dickens-cream pl-4">
-          <span className="text-xs uppercase tracking-[0.2em] font-medium opacity-80">Drammens Eldste Pub</span>
-        </div>
-      </div>
+    <header className="bg-dickens-green w-full px-6 py-4 flex items-center justify-center shadow-md text-dickens-cream border-b-4 border-dickens-gold">
+      <img src="/dickens-logo.png" alt="Dickens Pub" className="h-[76px] w-auto object-contain" />
     </header>
   );
 }
