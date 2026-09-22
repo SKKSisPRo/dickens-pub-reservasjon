@@ -115,9 +115,9 @@ export default function Step4Table({ date, time, guests, selectedTable, onSelect
     );
   };
 
-  // STAGE DEMO: simplified marker + shared bench, T-series only, for review before
-  // applying across V/H series and replacing renderTable entirely.
-  const renderMarker = (pos, style) => {
+  // STAGE DEMO: composite table+chairs marker + shared bench, T-series only, for
+  // review before applying across V/H series and replacing renderTable entirely.
+  const renderMarker = (pos, rotation, style) => {
     const tableData = tables.find(t => t.name === pos.name) || { id: pos.name, name: pos.name, capacity: 4 };
     const isAvailable = availableIds.has(tableData.id);
     const isSelected = selectedTable?.id === tableData.id;
@@ -140,11 +140,15 @@ export default function Step4Table({ date, time, guests, selectedTable, onSelect
           onSelect(tableData);
         }}
         style={style}
-        className={`relative w-11 h-11 md:w-12 md:h-12 flex items-center justify-center transition-transform duration-200 ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer hover:scale-105'
-          } ${isSelected ? 'scale-110 z-10 drop-shadow-[0_0_8px_rgba(184,134,44,0.7)]' : ''} ${isOccupied ? 'opacity-50' : ''} ${isTooSmall ? 'opacity-60' : ''}`}
+        className={`relative w-14 h-14 md:w-16 md:h-16 lg:w-[4.5rem] lg:h-[4.5rem] transition-transform duration-200 ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer hover:scale-105'
+          } ${isSelected ? 'scale-110 z-10' : ''} ${isOccupied ? 'opacity-50' : ''} ${isTooSmall ? 'opacity-60' : ''}`}
       >
-        <TableMarker state={state} capacity={tableData.capacity} className="w-full h-full" />
-        <span className="absolute bottom-0 left-0 text-center text-[9px] md:text-[10px] font-bold text-dickens-green bg-white/90 rounded px-1 shadow-sm">
+        <TableMarker state={state} rotation={rotation} className="w-full h-full" />
+        <span className="absolute top-0 right-0 flex items-center gap-0.5 text-[9px] md:text-[10px] font-semibold text-white bg-dickens-green/90 px-1 py-0.5 rounded-full shadow-sm">
+          <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d={PERSON_ICON_PATH} clipRule="evenodd" /></svg>
+          {tableData.capacity}
+        </span>
+        <span className="absolute bottom-0 inset-x-0 text-center text-[9px] md:text-[10px] font-bold text-dickens-green bg-white/90 rounded px-0.5">
           {pos.name}
         </span>
       </button>
@@ -187,10 +191,10 @@ export default function Step4Table({ date, time, guests, selectedTable, onSelect
           Scene
         </div>
 
-        {/* T-Series Tables (stage demo: shared bench + simplified marker) */}
-        <BenchStrip top="0.5%" left="2%" width="80%" height="15%" />
+        {/* T-Series Tables (stage demo: shared bench + composite table+chairs marker) */}
+        <BenchStrip top="0.5%" left="2%" width="80%" height="4%" />
         <div className="absolute top-[4%] left-[4%] w-[75%] flex flex-row justify-between">
-          {MAP_TABLES.filter(pos => pos.name.startsWith('T')).map((pos) => renderMarker(pos))}
+          {MAP_TABLES.filter(pos => pos.name.startsWith('T')).map((pos) => renderMarker(pos, 180))}
         </div>
 
         {/* Other Tables */}
