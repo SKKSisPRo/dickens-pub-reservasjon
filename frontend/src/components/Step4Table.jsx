@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { MAP_TABLES } from '../constants';
+import { API_BASE_URL } from '../lib/api';
 
 export default function Step4Table({ date, time, guests, selectedTable, onSelect, onBack }) {
   const [tables, setTables] = useState([]);
@@ -13,7 +14,7 @@ export default function Step4Table({ date, time, guests, selectedTable, onSelect
       try {
         setLoading(true);
         // Fetch all tables
-        const resAll = await fetch('http://localhost:5001/tables?areaId=1');
+        const resAll = await fetch(`${API_BASE_URL}/tables?areaId=1`);
         const allTables = await resAll.json();
         setTables(allTables);
 
@@ -25,7 +26,7 @@ export default function Step4Table({ date, time, guests, selectedTable, onSelect
           level: 1,
           outdoor: 0
         });
-        const resAvail = await fetch(`http://localhost:5001/tables/availability?${query}`);
+        const resAvail = await fetch(`${API_BASE_URL}/tables/availability?${query}`);
         if (resAvail.ok) {
           const availTables = await resAvail.json();
           setAvailableIds(new Set(availTables.map(t => t.id)));
@@ -34,7 +35,7 @@ export default function Step4Table({ date, time, guests, selectedTable, onSelect
         }
 
         // Fetch occupied tables for this date/time (public endpoint, no auth needed)
-        const resOccupied = await fetch(`http://localhost:5001/api/occupied-tables?date=${date}&time=${time}`);
+        const resOccupied = await fetch(`${API_BASE_URL}/api/occupied-tables?date=${date}&time=${time}`);
         if (resOccupied.ok) {
           const occupiedIds = await resOccupied.json();
           setOccupiedTableIds(new Set(occupiedIds));

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { COUNTRIES } from '../constants';
+import { API_BASE_URL } from '../lib/api';
 
 function formatDate(dateStr) {
   const parts = dateStr.split('-');
@@ -71,7 +72,7 @@ export default function Step5Details({
     };
 
     try {
-      const res = await fetch('http://localhost:5001/reservations', {
+      const res = await fetch(`${API_BASE_URL}/reservations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
