@@ -19,7 +19,7 @@ export default function AdminLayout() {
 
         <button
           onClick={handleLogout}
-          className="px-4 py-2 rounded-lg text-base font-medium text-white/80 hover:bg-white/10 hover:text-white transition-colors"
+          className="px-6 py-2.5 rounded-full text-base font-gothic font-bold text-dickens-red bg-dickens-cream shadow-md hover:shadow-lg hover:brightness-95 transition-all"
         >
           Logg ut
         </button>
