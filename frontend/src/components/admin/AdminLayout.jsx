@@ -12,14 +12,16 @@ export default function AdminLayout() {
   return (
     <div className="flex flex-col h-dvh bg-[#F9FAFB] font-sans">
       {/* Header */}
-      <header className="relative bg-dickens-green text-white flex items-center justify-end px-6 py-4 shadow-md border-b-4 border-dickens-gold flex-shrink-0">
-        <Link to="/" className="absolute left-1/2 -translate-x-1/2">
-          <img src="/dickens-logo.png" alt="Dickens Pub" className="h-[68px] w-auto object-contain drop-shadow-md" />
+      <header className="bg-dickens-green text-white grid grid-cols-[1fr_auto_1fr] items-center px-6 py-4 shadow-md border-b-4 border-dickens-gold flex-shrink-0">
+        <div />
+
+        <Link to="/" className="justify-self-center">
+          <img src="/dickens-logo.png" alt="Dickens Pub" className="h-[76px] w-auto object-contain drop-shadow-md" />
         </Link>
 
         <button
           onClick={handleLogout}
-          className="px-6 py-2.5 rounded-full text-base font-gothic font-bold text-[#2A1D14] bg-dickens-cream shadow-md hover:shadow-lg hover:brightness-95 transition-[box-shadow,filter,transform] active:scale-95"
+          className="justify-self-end px-6 py-2.5 rounded-full text-base font-gothic font-bold text-[#2A1D14] bg-dickens-cream shadow-md hover:shadow-lg hover:brightness-95 transition-[box-shadow,filter,transform] active:scale-95"
         >
           Logg ut
         </button>
