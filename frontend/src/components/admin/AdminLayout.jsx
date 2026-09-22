@@ -12,9 +12,9 @@ export default function AdminLayout() {
   return (
     <div className="flex flex-col h-dvh bg-[#F9FAFB] font-sans">
       {/* Header */}
-      <header className="bg-dickens-green text-white flex items-center justify-between px-6 py-4 shadow-md border-b-4 border-dickens-gold flex-shrink-0">
-        <Link to="/">
-          <img src="/dickens-logo.png" alt="Dickens Pub" className="h-12 w-auto object-contain drop-shadow-md" />
+      <header className="relative bg-dickens-green text-white flex items-center justify-end px-6 py-4 shadow-md border-b-4 border-dickens-gold flex-shrink-0">
+        <Link to="/" className="absolute left-1/2 -translate-x-1/2">
+          <img src="/dickens-logo.png" alt="Dickens Pub" className="h-[68px] w-auto object-contain drop-shadow-md" />
         </Link>
 
         <button
